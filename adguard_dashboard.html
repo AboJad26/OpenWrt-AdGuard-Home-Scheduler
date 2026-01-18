@@ -3,334 +3,358 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AdGuard Scheduler | التحكم الاحترافي</title>
-    <!-- خط Cairo الجميل للعربية -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>AdGuard Scheduler</title>
+    <!-- Cairo Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #4CAF50;
-            --primary-hover: #43A047;
-            --danger: #FF5252;
-            --dark: #2c3e50;
-            --light: #f8f9fa;
-            --shadow: 0 10px 30px rgba(0,0,0,0.08);
-            --radius: 16px;
+            --green: #68bc71;
+            --green-hover: #5da665;
+            --gray: #f5f5f5;
+            --text: #333;
+            --border: #e0e0e0;
         }
-
+        * {
+            box-sizing: border-box;
+        }
         body {
             font-family: 'Cairo', sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: #f9fafb;
             margin: 0;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--dark);
+            padding: 20px;
+            color: var(--text);
         }
-
-        .dashboard {
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        .btn-green {
+            background: var(--green);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: inherit;
+        }
+        .btn-green:hover {
+            background: var(--green-hover);
+        }
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .schedule-table th {
+            text-align: right;
+            color: #888;
+            font-weight: normal;
+            font-size: 14px;
+            border-bottom: 1px solid #eee;
+            padding: 10px;
+        }
+        .schedule-table td {
+            padding: 15px 10px;
+            border-bottom: 1px solid #f9f9f9;
+        }
+        /* Action Buttons */
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 5px;
+            margin-left: 5px;
+            color: #888;
+            transition: 0.2s;
+        }
+        .action-btn:hover {
+            color: var(--green);
+            background: #e8f5e9;
+            border-radius: 4px;
+        }
+        .del-btn:hover {
+            color: #ff5252;
+            background: #ffebee;
+        }
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal {
             background: white;
             width: 100%;
             max-width: 500px;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
+            border-radius: 5px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
             overflow: hidden;
-            margin: 20px;
+            animation: slideDown 0.3s ease;
         }
-
-        header {
-            background: var(--primary);
-            color: white;
-            padding: 25px;
-            text-align: center;
-            position: relative;
-        }
-
-        header h1 {
-            margin: 0;
-            font-size: 24px;
-            font-weight: 700;
+        .modal-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .content {
-            padding: 30px;
-        }
-
-        .control-panel {
-            background: var(--light);
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px solid #eee;
-            margin-bottom: 25px;
-        }
-
-        .control-title {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1.5fr 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-family: inherit;
-            font-size: 14px;
-            background: white;
-            outline: none;
-            transition: 0.2s;
-        }
-
-        select:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
-        }
-
-        .btn {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 8px;
             font-weight: 700;
-            font-family: inherit;
-            cursor: pointer;
-            transition: 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .btn-add {
-            background: var(--primary);
-            color: white;
             font-size: 16px;
         }
-
-        .btn-add:hover {
-            background: var(--primary-hover);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+        .modal-close {
+            cursor: pointer;
+            font-size: 20px;
+            color: #999;
         }
-
-        .btn-add:active {
-            transform: translateY(0);
+        .modal-body {
+            padding: 20px;
         }
-
-        .schedule-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .schedule-item {
+        .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #eee;
+            background: #fbfbfb;
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 15px;
-            border-bottom: 1px solid #f0f0f0;
+            justify-content: flex-end;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            color: #666;
+        }
+        .days-grid {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .day-check {
+            display: none;
+        }
+        .day-label {
+            flex: 1;
+            text-align: center;
+            border: 1px solid #ddd;
+            padding: 8px 5px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            background: white;
             transition: 0.2s;
         }
-
-        .schedule-item:last-child {
-            border-bottom: none;
+        .day-check:checked+.day-label {
+            background: var(--green);
+            color: white;
+            border-color: var(--green);
         }
-
-        .schedule-item:hover {
-            background: #fafafa;
+        .time-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: center;
         }
-
-        .time-badge {
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
-            font-size: 18px;
-            color: var(--dark);
-        }
-
-        .status-badge {
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .status-on {
-            background: #e8f5e9;
-            color: #2e7d32;
-        }
-
-        .status-off {
-            background: #ffebee;
-            color: #c62828;
-        }
-
-        .btn-del {
-            background: transparent;
-            color: #999;
+        select.form-input {
             padding: 8px;
-            border-radius: 6px;
-            width: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            flex: 1;
+            font-family: inherit;
         }
-
-        .btn-del:hover {
-            color: var(--danger);
-            background: #ffebee;
+        @keyframes slideDown {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
-        
-        /* Loading Overlay */
-        .overlay {
-            position: absolute; top:0; left:0; width:100%; height:100%;
-            background: rgba(255,255,255,0.8);
-            display: none; justify-content: center; align-items: center;
-            z-index: 10;
-        }
-        .spinner {
-            width: 40px; height: 40px; border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--primary); border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
     </style>
 </head>
 <body>
-
-    <div class="dashboard">
-        <header>
-            <h1>
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                مجدول AdGuard
-            </h1>
-        </header>
-
-        <div style="position:relative">
-            <div class="overlay" id="loader"><div class="spinner"></div></div>
-            
-            <div class="content">
-                <div class="control-panel">
-                    <div class="control-title">إضافة جدول جديد</div>
-                    <div class="form-row">
-                        <select id="action">
-                            <option value="ON">🟢 تفعيل الحظر</option>
-                            <option value="OFF">🔴 إيقاف الحظر</option>
-                        </select>
-                        <select id="hour"></select>
-                        <select id="min">
-                            <option value="00">00</option>
-                            <option value="15">15</option>
-                            <option value="30">30</option>
-                            <option value="45">45</option>
-                        </select>
-                    </div>
-                    <button class="btn btn-add" onclick="addSchedule()">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                        حفظ الموعد
-                    </button>
+    <div class="container">
+        <div class="card">
+            <h2 style="margin:0 0 5px 0; font-size: 20px;">إيقاف حظر الخدمة مؤقتاً</h2>
+            <p style="color:#777; font-size:13px; margin:0 0 20px 0;">تهيئة جدول إيقاف فلتر خدمة الحظر</p>
+            <div style="margin-bottom: 15px; font-size: 13px; color: #555;">المنطقة الزمنية الحالية: <span
+                    id="tz">System Time</span></div>
+            <button class="btn-green" onclick="openAdd()">جدول زمني جديد</button>
+        </div>
+        <div class="card">
+            <h3 style="margin:0 0 15px 0; font-size: 16px;">الجداول النشطة</h3>
+            <table class="schedule-table">
+                <thead>
+                    <tr>
+                        <th>الإجراء</th>
+                        <th>الأيام</th>
+                        <th>الوقت</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="list">
+                    <tr>
+                        <td colspan="4">جاري التحميل...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal-overlay" id="modal">
+        <div class="modal">
+            <div class="modal-header">
+                <span id="modal-title">جدول زمني جديد</span>
+                <span class="modal-close" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="edit-id">
+                <span class="form-label">اختر أيام الأسبوع</span>
+                <div class="days-grid">
+                    <input type="checkbox" id="d6" class="day-check" value="6"><label for="d6"
+                        class="day-label">السبت</label>
+                    <input type="checkbox" id="d0" class="day-check" value="0"><label for="d0"
+                        class="day-label">الأحد</label>
+                    <input type="checkbox" id="d1" class="day-check" value="1"><label for="d1"
+                        class="day-label">الإثنين</label>
+                    <input type="checkbox" id="d2" class="day-check" value="2"><label for="d2"
+                        class="day-label">الثلاثاء</label>
+                    <input type="checkbox" id="d3" class="day-check" value="3"><label for="d3"
+                        class="day-label">الأربعاء</label>
+                    <input type="checkbox" id="d4" class="day-check" value="4"><label for="d4"
+                        class="day-label">الخميس</label>
+                    <input type="checkbox" id="d5" class="day-check" value="5"><label for="d5"
+                        class="day-label">الجمعة</label>
                 </div>
-
-                <div class="control-title" style="margin-top: 20px; display:flex; justify-content:space-between;">
-                    <span>المواعيد النشطة</span>
-                    <span id="count" style="background:#eee; padding:2px 8px; border-radius:10px; font-size:10px">0</span>
+                <span class="form-label">نوع الإجراء</span>
+                <div style="margin-bottom:20px">
+                    <select id="action" class="form-input">
+                        <option value="OFF">⛔ إيقاف الحظر (Disable)</option>
+                        <option value="ON">✅ تفعيل الحظر (Enable)</option>
+                    </select>
                 </div>
-                
-                <ul class="schedule-list" id="list">
-                    <!-- Javascript will populate this -->
-                </ul>
+                <span class="form-label">التوقيت</span>
+                <div class="time-row">
+                    <select id="hour" class="form-input"></select>
+                    <span>:</span>
+                    <select id="min" class="form-input">
+                        <option value="00">00</option>
+                        <option value="15">15</option>
+                        <option value="30">30</option>
+                        <option value="45">45</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-green" style="margin-right:auto" onclick="save()" id="save-btn">إضافة</button>
             </div>
         </div>
     </div>
-
-<script>
-    // Populate Hours
-    const hourSel = document.getElementById('hour');
-    for(let i=0; i<24; i++) {
-        let h = i < 10 ? '0'+i : i;
-        let t = i > 12 ? (i-12) + ' م' : (i==0 ? '12 ص' : i + ' ص');
-        let opt = document.createElement('option');
-        opt.value = h;
-        opt.innerText = h + ':00 (' + t + ')';
-        hourSel.appendChild(opt);
-    }
-
-    const API_URL = '/cgi-bin/adguard_api.cgi';
-    const loader = document.getElementById('loader');
-
-    function showLoad(show) { loader.style.display = show ? 'flex' : 'none'; }
-
-    function loadList() {
-        showLoad(true);
-        fetch(API_URL + '?mode=list')
-        .then(res => res.json())
-        .then(data => {
-            const list = document.getElementById('list');
-            document.getElementById('count').innerText = data.length;
-            list.innerHTML = '';
-            
-            if(data.length === 0) {
-                list.innerHTML = '<li style="text-align:center; padding:20px; color:#aaa;">لا توجد جداول مضافلة حالياً</li>';
-                showLoad(false);
-                return;
+    <script>
+        const hourSel = document.getElementById('hour');
+        for (let i = 0; i < 24; i++) {
+            let h = i < 10 ? '0' + i : i;
+            hourSel.innerHTML += `<option value="${h}">${h}</option>`;
+        }
+        const API = '/cgi-bin/adguard_api.cgi';
+        let currentData = [];
+        function closeModal() { document.getElementById('modal').style.display = 'none'; }
+        function resetForm() {
+            document.querySelectorAll('.day-check').forEach(c => c.checked = false);
+            document.getElementById('edit-id').value = '';
+            document.getElementById('action').value = 'OFF';
+            document.getElementById('hour').value = '00';
+            document.getElementById('min').value = '00';
+        }
+        function openAdd() {
+            resetForm();
+            document.getElementById('modal-title').innerText = 'جدول زمني جديد';
+            document.getElementById('save-btn').innerText = 'إضافة';
+            document.getElementById('modal').style.display = 'flex';
+        }
+        function openEdit(id) {
+            const item = currentData.find(x => x.id === id);
+            if (!item) return;
+            resetForm();
+            document.getElementById('edit-id').value = id;
+            document.getElementById('modal-title').innerText = 'تعديل الجدول';
+            document.getElementById('save-btn').innerText = 'حفظ التعديلات';
+            // Fill Data
+            document.getElementById('action').value = item.action;
+            document.getElementById('hour').value = item.hour;
+            document.getElementById('min').value = item.min;
+            if (item.dow === '*') {
+                document.querySelectorAll('.day-check').forEach(c => c.checked = true);
+            } else {
+                item.dow.split(',').forEach(d => {
+                    let check = document.getElementById('d' + d);
+                    if (check) check.checked = true;
+                });
             }
-            
-            data.sort((a,b) => (a.hour + a.min) - (b.hour + b.min)).forEach(item => {
-                let badgeClass = item.action == 'ON' ? 'status-on' : 'status-off';
-                let actionText = item.action == 'ON' ? 'تفعيل الحظر' : 'إيقاف الحظر';
-                
-                let li = document.createElement('li');
-                li.className = 'schedule-item';
-                li.innerHTML = `
-                    <div style="display:flex; align-items:center; gap:15px">
-                        <span class="status-badge ${badgeClass}">${actionText}</span>
-                        <span class="time-badge">${item.hour}:${item.min}</span>
-                    </div>
-                    <button class="btn btn-del" onclick="del('${item.id}')">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                    </button>
-                `;
-                list.appendChild(li);
+            document.getElementById('modal').style.display = 'flex';
+        }
+        function load() {
+            fetch(API + '?mode=list').then(r => r.json()).then(d => {
+                currentData = d;
+                const t = document.getElementById('list'); t.innerHTML = '';
+                if (d.length === 0) { t.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#999;padding:20px">لا توجد جداول</td></tr>'; return; }
+                d.forEach(i => {
+                    let badge = i.action == 'ON' ? '<span style="color:var(--green);font-weight:bold">تفعيل ✅</span>' : '<span style="color:#ff5252;font-weight:bold">إيقاف ⛔</span>';
+                    let days = i.dow == '*' ? 'كل يوم' : parseDays(i.dow);
+                    t.innerHTML += `<tr>
+                    <td>${badge}</td>
+                    <td>${days}</td>
+                    <td style="font-family:monospace; font-size:1.2em">${i.hour}:${i.min}</td>
+                    <td>
+                        <button class="action-btn" onclick="openEdit('${i.id}')" title="تعديل">✏️</button>
+                        <button class="action-btn del-btn" onclick="del('${i.id}')" title="حذف">🗑️</button>
+                    </td>
+                </tr>`;
+                });
             });
-            showLoad(false);
-        })
-        .catch(err => {
-            document.getElementById('list').innerHTML = '<li style="color:red; text-align:center; padding:20px">خطأ في الاتصال بالراوتر</li>';
-            showLoad(false);
-        });
-    }
-
-    function addSchedule() {
-        showLoad(true);
-        const h = document.getElementById('hour').value;
-        const m = document.getElementById('min').value;
-        const a = document.getElementById('action').value;
-        
-        fetch(`${API_URL}?mode=add&hour=${h}&min=${m}&action=${a}`)
-        .then(res => res.json())
-        .then(res => { loadList(); });
-    }
-
-    function del(id) {
-        if(!confirm('هل تريد حذف هذا الموعد؟')) return;
-        showLoad(true);
-        fetch(`${API_URL}?mode=del&id=${id}`)
-        .then(res => res.json())
-        .then(res => { loadList(); });
-    }
-
-    loadList();
-</script>
-
+        }
+        function parseDays(dow) {
+            const map = { '0': 'الأحد', '1': 'الإثنين', '2': 'الثلاثاء', '3': 'الأربعاء', '4': 'الخميس', '5': 'الجمعة', '6': 'السبت' };
+            if (dow.includes(',')) return dow.split(',').map(d => map[d]).join('، ');
+            return map[dow] || dow;
+        }
+        function save() {
+            const h = document.getElementById('hour').value;
+            const m = document.getElementById('min').value;
+            const a = document.getElementById('action').value;
+            const id = document.getElementById('edit-id').value;
+            let days = [];
+            document.querySelectorAll('.day-check:checked').forEach(c => days.push(c.value));
+            const dStr = days.length > 0 ? days.join(',') : '*';
+            const mode = id ? 'edit' : 'add';
+            const url = `${API}?mode=${mode}&id=${id}&hour=${h}&min=${m}&action=${a}&days=${dStr}`;
+            fetch(url).then(r => r.json()).then(r => {
+                closeModal();
+                load();
+            });
+        }
+        function del(id) {
+            if (confirm('حذف؟')) fetch(`${API}?mode=del&id=${id}`).then(load);
+        }
+        window.onclick = function (e) { if (e.target == document.getElementById('modal')) closeModal(); }
+        load();
+    </script>
 </body>
 </html>
